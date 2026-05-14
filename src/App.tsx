@@ -1,35 +1,16 @@
-import { useEffect, useState } from 'react';
-import { getPokemons } from './services/pokemonService';
-import type { Pokemon } from './types/pokemon';
-import { PokemonCard } from './components/PokemonCard';
+import { Routes, Route } from 'react-router-dom';
+import { PokemonList } from './pages/PokemonList';
+import { PokemonDetail } from './pages/PokemonDetail';
 
 function App() {
-  // guardar los pokemons para que react los pinte
-  const [list, setList] = useState<Pokemon[]>([]);
-  const miFavorito = "rattata";
-
-  useEffect(() => {
-    getPokemons().then(setList);
-  }, []);
-
   return (
-    <div style={{ padding: '40px', fontFamily: 'Comic Sans MS', backgroundColor: '#EEBDD6', minHeight: '100vh' }}>
-      <h1 style={{ color: '#66ABE0', textAlign: 'center' }}>Pokédex - Clase 2</h1>
+    <Routes>
+      {/* cuando la dirección sea la principal, carga la lista*/}
+      <Route path="/" element={<PokemonList />} />
       
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
-        gap: '20px' 
-      }}>
-        {list.map((p) => (
-          <PokemonCard 
-            key={p.name} 
-            pokemon={p} 
-            esFavorito={p.name === miFavorito} 
-          />
-        ))}
-      </div>
-    </div>
+      {/* cuando la dirección tenga un nombre de pokemon, carga la pantalla de detalle */}
+      <Route path="/pokemon/:name" element={<PokemonDetail />} />
+    </Routes>
   );
 }
 
