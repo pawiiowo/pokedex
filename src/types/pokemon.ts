@@ -2,9 +2,11 @@
 export interface Pokemon {
   name: string;
   url: string;
+  image: string; // para la url de la imágen del pokémon
 }
 
 // aqui se guarda lo que te da la api en la lista
 export interface PokemonResponse {
   results: Pokemon[];
 }
+

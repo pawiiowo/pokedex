@@ -7,7 +7,15 @@ export const getPokemons = async (): Promise<Pokemon[]> => {
   
   // pasar a json para poder usarlo
   const data: PokemonResponse = await response.json();
-  
-  // regresar solo los resultados que es lo que nos sirve
-  return data.results;
+
+  // se transforma la lista para ponerles la imagen
+  return data.results.map((pokemon, index) => { // map es como un ciclo y devuelve una nueva lista con los datos cambiados
+    const id = index + 1;
+
+    return {
+      ...pokemon, // se mantiene el nombre y la url USAMOS EL SPREAD OPERATOR bravo!!!
+      // el link de la imagen se obtiene con el id
+      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+    };
+  });
 };
