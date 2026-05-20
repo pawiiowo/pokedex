@@ -25,7 +25,7 @@ export const PokemonCard = ({ pokemon, esFavorito }: Props) => {
           background: '#ffffff', color: '#000000', fontSize: '10px',
           padding: '2px 8px', borderRadius: '10px', border: '1px solid #ffffff'
         }}>
-          mi favorito (de estos 20)
+          mi favorito!
         </span>
       )}
       <img 

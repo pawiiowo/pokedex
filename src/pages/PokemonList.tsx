@@ -7,16 +7,37 @@ import { useNavigate } from 'react-router-dom'; // import del hook useNavigate p
 export const PokemonList = () => {
   const [list, setList] = useState<Pokemon[]>([]);
   const navigate = useNavigate(); // se obtiene la funcion navigate para poder usarla en el onclick de cada tarjeta
-  const miFavorito = "rattata";
 
   const [types, setTypes] = useState<string[]>([]); // se guarda la lista de tipos que da la api
   const [searchText, setSearchText] = useState<string>(''); // lo que la persona va escribiendo en la caja de busqueda
   const [selectedType, setSelectedType] = useState<string>(''); // el tipo de pokemon que se elija en el menu desplegable
 
+  // se intenta leer si ya habia favoritos guardados en el navegador si no empieza con una lista vacia
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem('pokefavoritos');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   useEffect(() => {
     getPokemons().then(setList);
     getPokemonTypes().then(setTypes); // cuando cargue la pagina se hace un request para lso tipos 
   }, []);
+
+  // funcion para agregar o quitar de la lista de favoritos
+  const toggleFavorito = (pokemonName: string) => {
+    let updatedFavorites: string[];
+    
+    if (favorites.includes(pokemonName)) {
+      // si ya era favorito se quita de la lista
+      updatedFavorites = favorites.filter(name => name !== pokemonName);
+    } else {
+      // si no era favorito se agrega a la lista
+      updatedFavorites = [...favorites, pokemonName];
+    }
+    
+    setFavorites(updatedFavorites); // se actualiza el estado en react
+    localStorage.setItem('pokefavoritos', JSON.stringify(updatedFavorites)); // se guarda en el navegador para que no se borre al recargar
+  };
 
   // se usa para que el filtro funcione rapido sin alentar la pagina con muchos requests
   const getTiposPorId = (name: string): string[] => {
@@ -80,11 +101,44 @@ export const PokemonList = () => {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '20px' }}>
-        {filteredPokemons.map((p) => (
-          <div key={p.name} onClick={() => navigate(`/pokemon/${p.name}`)} style={{ cursor: 'pointer' }}>
-            <PokemonCard pokemon={p} esFavorito={p.name === miFavorito} />
-          </div>
-        ))}
+        {filteredPokemons.map((p) => {
+          // se checa si este pokemon esta guardado en favoritos
+          const esFavoritoReal = favorites.includes(p.name);
+
+          return (
+            <div key={p.name} style={{ position: 'relative' }}>
+              <div onClick={() => navigate(`/pokemon/${p.name}`)} style={{ cursor: 'pointer' }}>
+                <PokemonCard pokemon={p} esFavorito={esFavoritoReal} />
+              </div>
+
+              {/* guardar o quitar de favoritos */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // que al dar click al boton no se navegue al detalle
+                  toggleFavorito(p.name);
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  background: 'white',
+                  border: '1px solid #66ABE0',
+                  borderRadius: '50%',
+                  width: '30px',
+                  height: '30px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  boxShadow: '0px 2px 5px rgba(0,0,0,0.1)'
+                }}
+              >
+                {esFavoritoReal ? '❤︎' : '♡'}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
