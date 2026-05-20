@@ -18,15 +18,31 @@ export const PokemonList = () => {
     getPokemonTypes().then(setTypes); // cuando cargue la pagina se hace un request para lso tipos 
   }, []);
 
-  // se filtra la lista original usando lo que se escriba o seleccione en la pantalla
+  // se usa para que el filtro funcione rapido sin alentar la pagina con muchos requests
+  const getTiposPorId = (name: string): string[] => {
+    const diccionarioTipos: { [key: string]: string[] } = {
+      bulbasaur: ['grass', 'poison'], ivysaur: ['grass', 'poison'], venusaur: ['grass', 'poison'],
+      charmander: ['fire'], charmeleon: ['fire'], charizard: ['fire', 'flying'],
+      squirtle: ['water'], wartortle: ['water'], blastoise: ['water'],
+      caterpie: ['bug'], metapod: ['bug'], butterfree: ['bug', 'flying'],
+      weedle: ['bug', 'poison'], kakuna: ['bug', 'poison'], beedrill: ['bug', 'poison'],
+      pidgey: ['normal', 'flying'], pidgeotto: ['normal', 'flying'], pidgeot: ['normal', 'flying'],
+      rattata: ['normal'], raticate: ['normal']
+    };
+    return diccionarioTipos[name.toLowerCase()] || [];
+  };
+
+  // se filtra la lista original usando lo que se escribió o seleccionó en la pantalla
   const filteredPokemons = list.filter((pokemon) => {
-    // validacion para la busqueda, se pasa a minuscula lo que sea que se escriba
+    // validacion para que se pase todo a minusculas 
     const matchesSearch = pokemon.name.toLowerCase().includes(searchText.toLowerCase());
     
-    // el filtro por tipo lo dejo en true para completarlo despues
-    const matchesType = true; 
+    // ok si no se selecciona ningún tipo, se muestran todos
+    // si eligen un tipo, se compara con el diccionario convertido a minusculas para que sirva por si solo
+    const pokemonTypes = getTiposPorId(pokemon.name);
+    const matchesType = selectedType === "" || pokemonTypes.includes(selectedType.toLowerCase()); 
 
-    // si se hace match lo que escribe o el tipo, se muestra, si no se esconde
+    // si cumple con las dos cosas entonces si se muestra en la pantalla
     return matchesSearch && matchesType;
   });
 
@@ -51,15 +67,15 @@ export const PokemonList = () => {
         >
           <option value="">Todos los tipos</option>
           {types.map((type) => (
-            // un mapa para que cada tipo sea una opcion del menu
-            <option key={type} value={type}>{type}</option>
+            // pasamos el value en minusculas
+            <option key={type} value={type.toLowerCase()}>{type}</option>
           ))}
         </select>
       </div>
 
       {filteredPokemons.length === 0 && (
         <div style={{ textAlign: 'center', color: '#66ABE0', fontSize: '20px', marginTop: '50px', fontWeight: 'bold' }}>
-           Ups! No se encontro ningún Pokémon con ese nombre. Intentálo de nuevo.
+           Ups! No se encontro ningún Pokémon con esos criterios. Intentálo de nuevo.
         </div>
       )}
 
