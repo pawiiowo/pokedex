@@ -30,3 +30,15 @@ export const getPokemonDetail = async (name: string) => {
 
   return data;
 };
+
+// funcion para agarrar los tipos de pokemon
+export const getPokemonTypes = async (): Promise<string[]> => {
+
+  // peticion a la api 
+  const response = await fetch("https://pokeapi.co/api/v2/type");
+  const data = await response.json();
+
+  // se devuelve una lista solo con los nombres de los tipos
+  // recordar que map es como un for pero devuelve una lista nueva con los datos cambiados, sin los datos extras
+  return data.results.map((t: any) => t.name);
+};
