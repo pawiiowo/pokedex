@@ -39,29 +39,14 @@ export const PokemonList = () => {
     localStorage.setItem('pokefavoritos', JSON.stringify(updatedFavorites)); // se guarda en el navegador para que no se borre al recargar
   };
 
-  // se usa para que el filtro funcione rapido sin alentar la pagina con muchos requests
-  const getTiposPorId = (name: string): string[] => {
-    const diccionarioTipos: { [key: string]: string[] } = {
-      bulbasaur: ['grass', 'poison'], ivysaur: ['grass', 'poison'], venusaur: ['grass', 'poison'],
-      charmander: ['fire'], charmeleon: ['fire'], charizard: ['fire', 'flying'],
-      squirtle: ['water'], wartortle: ['water'], blastoise: ['water'],
-      caterpie: ['bug'], metapod: ['bug'], butterfree: ['bug', 'flying'],
-      weedle: ['bug', 'poison'], kakuna: ['bug', 'poison'], beedrill: ['bug', 'poison'],
-      pidgey: ['normal', 'flying'], pidgeotto: ['normal', 'flying'], pidgeot: ['normal', 'flying'],
-      rattata: ['normal'], raticate: ['normal']
-    };
-    return diccionarioTipos[name.toLowerCase()] || [];
-  };
-
-  // se filtra la lista original usando lo que se escribió o seleccionó en la pantalla
+  // filtro la lista original usando lo que se escribio o selecciono en la pantalla
   const filteredPokemons = list.filter((pokemon) => {
     // validacion para que se pase todo a minusculas 
     const matchesSearch = pokemon.name.toLowerCase().includes(searchText.toLowerCase());
     
     // ok si no se selecciona ningún tipo, se muestran todos
-    // si eligen un tipo, se compara con el diccionario convertido a minusculas para que sirva por si solo
-    const pokemonTypes = getTiposPorId(pokemon.name);
-    const matchesType = selectedType === "" || pokemonTypes.includes(selectedType.toLowerCase()); 
+    // si eligen un tipo, se compara con los tipos reales que ya vienen en el objeto pokemon desde la api
+    const matchesType = selectedType === "" || pokemon.types.includes(selectedType.toLowerCase()); 
 
     // si cumple con las dos cosas entonces si se muestra en la pantalla
     return matchesSearch && matchesType;
@@ -69,7 +54,25 @@ export const PokemonList = () => {
 
   return (
     <div style={{ padding: '40px', fontFamily: 'Comic Sans MS', backgroundColor: '#EEBDD6', minHeight: '100vh' }}>
-      <h1 style={{ color: '#66ABE0', textAlign: 'center' }}>Pokédex - Clase 3</h1>
+      <h1 style={{ color: '#66ABE0', textAlign: 'center' }}>Pokédex - Clase 4</h1>
+
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <button 
+          onClick={() => navigate('/compare')}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '10px',
+            border: '2px solid #66ABE0',
+            backgroundColor: 'white',
+            color: '#66ABE0',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            fontFamily: 'Comic Sans MS'
+          }}
+        >
+          Comparador de Pokemon
+        </button>
+      </div>
 
       <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '30px' }}>
         
@@ -88,7 +91,7 @@ export const PokemonList = () => {
         >
           <option value="">Todos los tipos</option>
           {types.map((type) => (
-            // pasamos el value en minusculas
+            // pasa el value en minusculas
             <option key={type} value={type.toLowerCase()}>{type}</option>
           ))}
         </select>
@@ -102,7 +105,7 @@ export const PokemonList = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '20px' }}>
         {filteredPokemons.map((p) => {
-          // se checa si este pokemon esta guardado en favoritos
+          // checar si este pokemon esta guardado en favoritos
           const esFavoritoReal = favorites.includes(p.name);
 
           return (
@@ -111,7 +114,6 @@ export const PokemonList = () => {
                 <PokemonCard pokemon={p} esFavorito={esFavoritoReal} />
               </div>
 
-              {/* guardar o quitar de favoritos */}
               <button
                 onClick={(e) => {
                   e.stopPropagation(); // que al dar click al boton no se navegue al detalle
