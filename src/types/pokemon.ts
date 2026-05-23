@@ -1,12 +1,7 @@
-// este es como el molde para que no se pase ningun dato
 export interface Pokemon {
+  id: number;
   name: string;
-  url: string;
-  image: string; // para la url de la imágen del pokémon
+  image: string;
+  types: string[]; // tipos
+  stats: number[]; // stats
 }
-
-// aqui se guarda lo que te da la api en la lista
-export interface PokemonResponse {
-  results: Pokemon[];
-}
-

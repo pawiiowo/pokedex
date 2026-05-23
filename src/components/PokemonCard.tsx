@@ -6,7 +6,7 @@ interface Props {
   esFavorito: boolean;
 }
 
-// card que muestra el nombre y la imagen del pokémon
+// card que muestra el nombre y la imagen del pokemon
 export const PokemonCard = ({ pokemon, esFavorito }: Props) => {
   return (
     <div style={{ 

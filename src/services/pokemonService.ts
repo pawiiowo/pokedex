@@ -1,44 +1,46 @@
-import type { Pokemon, PokemonResponse } from "../types/pokemon"; 
+import type { Pokemon } from '../types/pokemon';
 
-// funcion que va por los datos a la pokeapi
+const BASE_URL = 'https://pokeapi.co/api/v2';
+
+// funcion que trae los 151 pokemon, incluye los detalles
 export const getPokemons = async (): Promise<Pokemon[]> => {
-  // tomar los primeros 20 pokemon
-  const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
-  
-  // pasar a json para poder usarlo
-  const data: PokemonResponse = await response.json();
+// se usa primero una lista simple con los urls 
+  const response = await fetch(`${BASE_URL}/pokemon?limit=151`);
+  const data = await response.json();
 
-  // se transforma la lista para ponerles la imagen
-  return data.results.map((pokemon, index) => { // map es como un ciclo y devuelve una nueva lista con los datos cambiados
-    const id = index + 1;
+  // mapeo para buscar el detalle en paralelo, usa promise all
+  const detailedPromises = data.results.map(async (p: any) => {
+    const res = await fetch(p.url);
+    const detail = await res.json();
 
+    // se regresa el pokemon ya con los detalles
     return {
-      ...pokemon, // se mantiene el nombre y la url USAMOS EL SPREAD OPERATOR bravo!!!
-      // el link de la imagen se obtiene con el id
-      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+      id: detail.id,
+      name: detail.name,
+      image: detail.sprites.front_default || '',
+      // mapeamos los tipos reales que vienen de la api
+      types: detail.types.map((t: any) => t.type.name),
+      stats: [
+        detail.stats[0].base_stat, 
+        detail.stats[1].base_stat, 
+        detail.stats[2].base_stat, 
+        detail.stats[5].base_stat  
+      ]
     };
   });
+
+  return Promise.all(detailedPromises);
 };
 
-// funcion para traer la info de un solo pokemon (peso, altura, etc)
-export const getPokemonDetail = async (name: string) => {
-  // se busca al pokemon por su nombre en la api
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-  
-  // se convierte a objeto para usarlo en la pantalla de detalle
-  const data = await response.json();
-
-  return data;
-};
-
-// funcion para agarrar los tipos de pokemon
+// aqui se toma la lista de tipos, se hace el request y se usa map para regresar solo los nombres de tipos
 export const getPokemonTypes = async (): Promise<string[]> => {
-
-  // peticion a la api 
-  const response = await fetch("https://pokeapi.co/api/v2/type");
+  const response = await fetch(`${BASE_URL}/type`);
   const data = await response.json();
-
-  // se devuelve una lista solo con los nombres de los tipos
-  // recordar que map es como un for pero devuelve una lista nueva con los datos cambiados, sin los datos extras
   return data.results.map((t: any) => t.name);
+};
+
+// traer el detalle de un pokemon por su nombre
+export const getPokemonDetail = async (name: string): Promise<Pokemon | undefined> => {
+  const pokemons = await getPokemons();
+  return pokemons.find(p => p.name.toLowerCase() === name.toLowerCase());
 };
